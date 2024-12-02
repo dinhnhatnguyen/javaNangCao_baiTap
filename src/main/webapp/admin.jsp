@@ -1,97 +1,153 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
-<html>
+<html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Quản lý Admin</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý Sách và Đơn hàng</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .status-pending {
+            color: #ffc107;
+            font-weight: bold;
+        }
+
+        .status-completed {
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        img.book-thumbnail {
+            max-width: 50px;
+            max-height: 50px;
+            object-fit: cover;
+        }
+    </style>
 </head>
 <body>
-<div class="container mt-4">
-    <h2>Quản lý Sách</h2>
-    <div class="mb-3">
-        <a href="adminController?action=create" class="btn btn-primary">Thêm Sách Mới</a>
-    </div>
+<div class="container">
+    <h1>Quản lý Sách và Đơn hàng</h1>
 
-    <!-- Bảng quản lý sách -->
-    <div class="table-responsive" style="max-height: 400px; overflow-y: auto; border: 1px solid #ddd; padding: 10px;">
-        <table class="table table-striped">
-            <thead>
-            <tr>
-                <th>Mã Sách</th>
-                <th>Tên Sách</th>
-                <th>Tác Giả</th>
-                <th>Giá</th>
-                <th>Số Lượng</th>
-                <th>Loại</th>
-                <th>Ảnh</th>
-                <th>Thao Tác</th>
-            </tr>
-            </thead>
-            <tbody>
-            <c:forEach items="${books}" var="book">
+    <div class="table-container">
+        <a href="adminController?action=create" class="btn btn-primary mb-3">Thêm Sách Mới</a>
+        <div class="search-form mb-3">
+            <form action="adminController" method="get" class="form-inline">
+                <input type="hidden" name="action" value="searchBooks">
+                <input type="text" name="searchKey" placeholder="Tìm kiếm sách..."
+                       class="form-control mr-2" value="${searchKey != null ? searchKey : ''}">
+                <button type="submit" class="btn btn-secondary">Tìm Sách</button>
+            </form>
+        </div>
+
+        <h2>Danh sách Sách</h2>
+        <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+            <table class="table table-bordered">
+                <thead class="thead-light">
                 <tr>
-                    <td>${book.masach}</td>
-                    <td>${book.tensach}</td>
-                    <td>${book.tacgia}</td>
-                    <td>${book.gia}</td>
-                    <td>${book.soluong}</td>
-                    <td>${book.maloai}</td>
-                    <td>
-                        <img src="${book.anh}" alt="${book.tensach}" style="width: 50px; height: 50px;">
-                    </td>
-                    <td>
-                        <a href="adminController?action=edit&id=${book.masach}" class="btn btn-warning btn-sm">
-                            <i class="bi bi-pencil"></i>
-                        </a>
-                        <a href="adminController?action=delete&id=${book.masach}"
-                           class="btn btn-danger btn-sm"
-                           onclick="return confirm('Bạn có chắc muốn xóa sách này?')">
-                            <i class="bi bi-trash"></i>
-                        </a>
-                    </td>
+                    <th>Mã sách</th>
+                    <th>Ảnh</th>
+                    <th>Tên sách</th>
+                    <th>Tác giả</th>
+                    <th>Giá</th>
+                    <th>Số lượng</th>
+                    <th>Hành động</th>
                 </tr>
-            </c:forEach>
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                <c:forEach var="book" items="${books}">
+                    <tr>
+                        <td>${book.masach}</td>
+                        <td>
+                            <img src="${book.anh}" alt="${book.tensach}" class="book-thumbnail">
+                        </td>
+                        <td>${book.tensach}</td>
+                        <td>${book.tacgia}</td>
+                        <td>${book.gia}</td>
+                        <td>${book.soluong}</td>
+                        <td class="actions">
+                            <a href="adminController?action=edit&id=${book.masach}" class="btn btn-success btn-sm">Sửa</a>
+                            <a href="adminController?action=delete&id=${book.masach}" class="btn btn-danger btn-sm"
+                               onclick="return confirm('Bạn có chắc muốn xóa sách này?')">Xóa</a>
+                        </td>
+                    </tr>
+                </c:forEach>
+                </tbody>
+            </table>
+        </div>
     </div>
-    <h2 class="mt-5">Quản lý Hóa Đơn</h2>
-    <!-- Bảng quản lý hóa đơn -->
-    <table class="table table-striped">
-        <thead>
-        <tr>
-            <th>Mã Hóa Đơn</th>
-            <th>Mã Khách Hàng</th>
-            <th>Ngày Mua</th>
-            <th>Trạng Thái</th>
-            <th>Thao Tác</th>
-        </tr>
-        </thead>
-        <tbody>
-        <c:forEach items="${orders}" var="order">
-            <tr>
-                <td>${order.mahoadon}</td>
-                <td>${order.makh}</td>
-                <td>${order.ngaymua}</td>
-                <td>
-                            <span class="badge ${order.damua ? 'bg-success' : 'bg-warning'}">
-                                    ${order.damua ? 'Đã xử lý' : 'Chờ xử lý'}
-                            </span>
-                </td>
-                <td>
-                    <a href="adminController?action=toggleOrderStatus&id=${order.mahoadon}"
-                       class="btn ${order.damua ? 'btn-warning' : 'btn-success'} btn-sm">
-                            ${order.damua ? 'Hủy xử lý' : 'Xác nhận'}
-                    </a>
-                </td>
-            </tr>
-        </c:forEach>
-        </tbody>
-    </table>
-</div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+    <div class="table-container mt-5">
+        <h2>Danh sách Đơn Hàng</h2>
+        <div class="search-form mb-3">
+            <form action="adminController" method="get" class="form-inline">
+                <input type="hidden" name="action" value="searchOrders">
+                <input type="text" name="orderSearchKey" placeholder="Tìm kiếm hoá đơn..."
+                       class="form-control mr-2" value="${orderSearchKey != null ? orderSearchKey : ''}">
+                <button type="submit" class="btn btn-secondary">Tìm Hoá Đơn</button>
+            </form>
+        </div>
+
+        <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+            <table class="table table-bordered">
+                <thead class="thead-light">
+                <tr>
+                    <th>Mã Đơn</th>
+                    <th>Mã Khách Hàng</th>
+                    <th>Ngày Mua</th>
+                    <th>Trạng Thái</th>
+                    <th>Thao Tác</th>
+                </tr>
+                </thead>
+                <tbody>
+                <c:forEach var="order" items="${orders}">
+                    <tr>
+                        <td>${order.mahoadon}</td>
+                        <td>${order.makh}</td>
+                        <td>${order.ngaymua}</td>
+                        <td class="${order.damua ? 'status-completed' : 'status-pending'}">
+                                ${order.damua ? 'Đã xử lý' : 'Chờ xử lý'}
+                        </td>
+                        <td class="actions">
+                            <a href="adminController?action=toggleOrderStatus&id=${order.mahoadon}"
+                               class="btn ${order.damua ? 'btn-danger' : 'btn-success'} btn-sm">
+                                    ${order.damua ? 'Hủy xử lý' : 'Xác nhận'}
+                            </a>
+                        </td>
+                    </tr>
+                </c:forEach>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
 </body>
 </html>
+
+
+
+
