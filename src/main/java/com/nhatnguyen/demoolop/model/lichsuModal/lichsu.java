@@ -3,6 +3,7 @@ package com.nhatnguyen.demoolop.model.lichsuModal;
 import java.util.Date;
 
 public class lichsu {
+	private long mahoadon;
 	private String hoten;
 	private String tensach;
 	private long SoLuongMua;
@@ -14,8 +15,9 @@ public class lichsu {
 	public lichsu() {
 		super();
 	}
-	public lichsu(String hoten, String tensach, long soLuongMua, long gia, long thanhTien, Date ngayMua,
+	public lichsu(long mahoadon,String hoten, String tensach, long soLuongMua, long gia, long thanhTien, Date ngayMua,
 			boolean damua, long makh) {
+		this.mahoadon = mahoadon;
 		this.hoten = hoten;
 		this.tensach = tensach;
 		SoLuongMua = soLuongMua;
@@ -25,6 +27,7 @@ public class lichsu {
 		this.damua = damua;
 		this.makh = makh;
 	}
+	public long getMahoadon() {return mahoadon;}
 	public String getHoten() {
 		return hoten;
 	}

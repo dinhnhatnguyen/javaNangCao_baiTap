@@ -21,6 +21,7 @@ public class lichsudao {
 		
 		ResultSet rs = cmd.executeQuery();
 		while(rs.next()) {
+			long mahoadon = rs.getLong("MaHoaDon");
 			String hoten = rs.getString("hoten");
 			String tensach = rs.getString("tensach");
 			long SoLuongMua = rs.getLong("SoLuongMua");
@@ -28,7 +29,7 @@ public class lichsudao {
 			long ThanhTien = rs.getLong("ThanhTien");
 			Date NgayMua = rs.getDate("NgayMua");
 			
-			ls.add(new lichsu(hoten, tensach, SoLuongMua, gia, ThanhTien, NgayMua, damua, makh));
+			ls.add(new lichsu(mahoadon,hoten, tensach, SoLuongMua, gia, ThanhTien, NgayMua, damua, makh));
 		}
 		
 		rs.close();
@@ -36,4 +37,32 @@ public class lichsudao {
 		conn.close();
 		return ls;
 	}
+
+	public ArrayList<lichsu> getAllDonHang() throws Exception {
+		Connection conn = dbHelper.getConnection();
+		ArrayList<lichsu> ls = new ArrayList<lichsu>();
+		String sql = "select * from VLichSu ";
+		PreparedStatement cmd = conn.prepareStatement(sql);
+
+		ResultSet rs = cmd.executeQuery();
+		while(rs.next()) {
+			long mahoadon = rs.getLong("MaHoaDon");
+			String hoten = rs.getString("hoten");
+			String tensach = rs.getString("tensach");
+			long SoLuongMua = rs.getLong("SoLuongMua");
+			long gia = rs.getLong("gia");
+			long ThanhTien = rs.getLong("ThanhTien");
+			Date NgayMua = rs.getDate("NgayMua");
+			boolean damua = rs.getBoolean("damua");
+			long makh = rs.getLong("makh");
+
+			ls.add(new lichsu(mahoadon,hoten, tensach, SoLuongMua, gia, ThanhTien, NgayMua, damua, makh));
+		}
+
+		rs.close();
+		cmd.close();
+		conn.close();
+		return ls;
+	}
+
 }

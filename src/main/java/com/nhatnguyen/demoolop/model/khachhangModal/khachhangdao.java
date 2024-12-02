@@ -6,7 +6,7 @@ import com.nhatnguyen.demoolop.model.khachhangModal.khachhang;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-
+import java.util.Random;
 
 
 public class khachhangdao {
@@ -61,23 +61,65 @@ public class khachhangdao {
 	}
 	
 	//them moi khach hang
+
+
 	public boolean themKhachHang(khachhang kh) throws Exception {
 		Connection conn = dbHelper.getConnection();
-		
-		String sql = "INSERT INTO KhachHang(hoten, diachi, sodt, email, tendn, pass) values (?,?,?,?,?,?)";
-		PreparedStatement cmd = conn.prepareStatement(sql);
-		cmd.setString(1, kh.getHoten());
-		cmd.setString(2, kh.getDiachi());
-		cmd.setString(3, kh.getSodt());
-		cmd.setString(4, kh.getEmail());
-		cmd.setString(5, kh.getTendn());
-		cmd.setString(6, kh.getPass());
-		
-		
-		boolean rs = cmd.executeUpdate() > 0;
-		cmd.close();
+		String checkSql = "SELECT COUNT(*) FROM KhachHang WHERE makh = ?";
+		String insertSql = "INSERT INTO KhachHang(makh, hoten, diachi, sodt, email, tendn, pass) VALUES (?, ?, ?, ?, ?, ?, ?)";
+		Random random = new Random();
+		int makh;
+
+		// Sinh mã khách hàng và đảm bảo không trùng
+		while (true) {
+			makh = random.nextInt(1000000); // Sinh số ngẫu nhiên từ 0 đến 999999
+			PreparedStatement checkCmd = conn.prepareStatement(checkSql);
+			checkCmd.setInt(1, makh);
+			ResultSet rs = checkCmd.executeQuery();
+			rs.next();
+			if (rs.getInt(1) == 0) { // Nếu không trùng
+				rs.close();
+				checkCmd.close();
+				break;
+			}
+			rs.close();
+			checkCmd.close();
+		}
+
+		// Thêm khách hàng vào cơ sở dữ liệu
+		PreparedStatement insertCmd = conn.prepareStatement(insertSql);
+		insertCmd.setInt(1, makh);
+		insertCmd.setString(2, kh.getHoten());
+		insertCmd.setString(3, kh.getDiachi());
+		insertCmd.setString(4, kh.getSodt());
+		insertCmd.setString(5, kh.getEmail());
+		insertCmd.setString(6, kh.getTendn());
+		insertCmd.setString(7, kh.getPass());
+
+		boolean result = insertCmd.executeUpdate() > 0;
+		insertCmd.close();
 		conn.close();
-				
-		return rs;
+
+		return result;
 	}
+
+//	public boolean themKhachHang(khachhang kh) throws Exception {
+//		Connection conn = dbHelper.getConnection();
+//
+//		String sql = "INSERT INTO KhachHang(hoten, diachi, sodt, email, tendn, pass) values (?,?,?,?,?,?)";
+//		PreparedStatement cmd = conn.prepareStatement(sql);
+//		cmd.setString(1, kh.getHoten());
+//		cmd.setString(2, kh.getDiachi());
+//		cmd.setString(3, kh.getSodt());
+//		cmd.setString(4, kh.getEmail());
+//		cmd.setString(5, kh.getTendn());
+//		cmd.setString(6, kh.getPass());
+//
+//
+//		boolean rs = cmd.executeUpdate() > 0;
+//		cmd.close();
+//		conn.close();
+//
+//		return rs;
+//	}
 }

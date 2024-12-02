@@ -68,7 +68,8 @@ public class dangnhapAdminController extends HttpServlet {
                         // Reset login attempts on successful login
                         session.removeAttribute("dem");
                         session.setAttribute("loginadmin", tendn);
-                        response.sendRedirect("adminController");
+//                        response.sendRedirect("adminController");
+                        response.sendRedirect("sachController");
                         return;
                     } else {
                         error = "Tên đăng nhập hoặc mật khẩu không đúng";

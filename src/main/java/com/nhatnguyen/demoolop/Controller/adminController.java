@@ -1,19 +1,30 @@
 package com.nhatnguyen.demoolop.Controller;
 
-//import com.nhatnguyen.demoolop.model.hoadonModal.hoadon;
+
+import com.nhatnguyen.demoolop.model.Helper.dbHelper;
+import com.nhatnguyen.demoolop.model.hoadonModal.hoadon;
 import com.nhatnguyen.demoolop.model.hoadonModal.hoadonbo;
+import com.nhatnguyen.demoolop.model.lichsuModal.lichsu;
+import com.nhatnguyen.demoolop.model.lichsuModal.lichsubo;
 import com.nhatnguyen.demoolop.model.sachModal.sach;
 import com.nhatnguyen.demoolop.model.sachModal.sachbo;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
+
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.Part;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.util.ArrayList;
 import java.util.UUID;
 
@@ -30,7 +41,7 @@ public class adminController extends HttpServlet {
 
     public void init() throws ServletException {
         bookBO = new sachbo();
-//        orderBO = new hoadonbo();
+        orderBO = new hoadonbo();
     }
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -39,6 +50,11 @@ public class adminController extends HttpServlet {
         String action = request.getParameter("action");
 
         try {
+            if (request.getSession().getAttribute("loginadmin") == null) {
+                // Chuyển hướng về trang tc.jsp
+                response.sendRedirect(request.getContextPath() + "/sachController");
+                return; // Dừng xử lý tiếp nếu không có loginadmin
+            }
             if (action == null) {
                 action = "showManagement";
             }
@@ -61,6 +77,12 @@ public class adminController extends HttpServlet {
                     break;
                 case "viewOrderDetails":
                     viewOrderDetails(request, response);
+                    break;
+                case "searchBooks":
+                    searchBooks(request, response);
+                    break;
+                case "searchOrders":
+                    searchOrders(request, response);
                     break;
                 default:
                     showBookManagement(request, response);
@@ -91,6 +113,78 @@ public class adminController extends HttpServlet {
         }
     }
 
+    private void searchBooks(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException, Exception {
+        String searchKey = request.getParameter("searchKey");
+        ArrayList<sach> searchResults;
+
+        if (searchKey != null && !searchKey.trim().isEmpty()) {
+            searchResults = bookBO.Tim(searchKey);
+        } else {
+            searchResults = bookBO.getsach();
+        }
+
+        ArrayList<hoadon> orders = orderBO.getHoaDon();
+
+        request.setAttribute("books", searchResults);
+        request.setAttribute("orders", orders);
+        request.setAttribute("searchKey", searchKey);
+        request.getRequestDispatcher("admin.jsp").forward(request, response);
+    }
+
+    private void searchOrders(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException, Exception {
+        String searchKey = request.getParameter("orderSearchKey");
+        ArrayList<hoadon> searchResults = new ArrayList<>();
+        ArrayList<hoadon> allOrders = orderBO.getHoaDon();
+
+        if (searchKey != null && !searchKey.trim().isEmpty()) {
+            try {
+                long searchId = Long.parseLong(searchKey);
+                for (hoadon order : allOrders) {
+                    if (order.getMahoadon() == searchId) {
+                        searchResults.add(order);
+                    }
+                }
+            } catch (NumberFormatException e) {
+                try {
+                    long customerId = Long.parseLong(searchKey);
+                    for (hoadon order : allOrders) {
+                        if (order.getMakh() == customerId) {
+                            searchResults.add(order);
+                        }
+                    }
+                } catch (NumberFormatException ex) {
+                    searchResults = allOrders;
+                }
+            }
+        } else {
+            searchResults = allOrders;
+        }
+
+        ArrayList<sach> books = bookBO.getsach();
+
+        request.setAttribute("books", books);
+        request.setAttribute("orders", searchResults);
+        request.setAttribute("orderSearchKey", searchKey);
+        request.getRequestDispatcher("admin.jsp").forward(request, response);
+    }
+
+//
+//    private void showBookManagement(HttpServletRequest request, HttpServletResponse response)
+//            throws ServletException, IOException, Exception {
+//        // Retrieve all books
+//        ArrayList<sach> books = bookBO.getsach();
+//        request.setAttribute("books", books);
+//
+//        // Retrieve all orders
+//        ArrayList<hoadon> orders = orderBO.getHoaDon();
+//        request.setAttribute("orders", orders);
+//
+//        // Forward to admin page
+//        request.getRequestDispatcher("admin.jsp").forward(request, response);
+//    }
+
     private void showBookManagement(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException, Exception {
         // Retrieve all books
@@ -98,8 +192,8 @@ public class adminController extends HttpServlet {
         request.setAttribute("books", books);
 
         // Retrieve all orders
-//        ArrayList<hoadon> orders = orderBO.getHoaDon();
-//        request.setAttribute("orders", orders);
+        ArrayList<lichsu> orders = new lichsubo().getAllDonHang();
+        request.setAttribute("orders", orders);  // Đặt đúng tên là "orders"
 
         // Forward to admin page
         request.getRequestDispatcher("admin.jsp").forward(request, response);
@@ -120,17 +214,17 @@ public class adminController extends HttpServlet {
 
     private void createBook(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException, Exception {
-        // Get book details from form
+
         String title = request.getParameter("title");
         String author = request.getParameter("author");
         long quantity = Long.parseLong(request.getParameter("quantity"));
         long price = Long.parseLong(request.getParameter("price"));
         String category = request.getParameter("category");
 
-        // Handle file upload
+
         String fileName = uploadImage(request);
 
-        // Create book object
+
         sach newBook = new sach(
                 generateBookId(),
                 title,
@@ -216,96 +310,92 @@ public class adminController extends HttpServlet {
     private void toggleOrderStatus(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException, Exception {
         long orderId = Long.parseLong(request.getParameter("id"));
-//        orderBO.toggleOrderStatus(orderId);
+        orderBO.toggleOrderStatus(orderId);
         response.sendRedirect(request.getContextPath() + "/adminController?action=showManagement");
     }
 
-    private void viewOrderDetails(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException, Exception {
-        String orderId = request.getParameter("id");
+//    private void toggleOrderStatus(HttpServletRequest request, HttpServletResponse response)
+//            throws ServletException, IOException, Exception {
+//        long mahoadon = Long.parseLong(request.getParameter("id"));
+//        lichsubo lsbo = new lichsubo();
+//        lsbo.toggleOrderStatus(mahoadon);
+//
+//        // Quay lại trang quản lý sau khi chuyển trạng thái
+//        response.sendRedirect(request.getContextPath() + "/adminController?action=showManagement");
+//    }
+
+
+
+    //    private void viewOrderDetails(HttpServletRequest request, HttpServletResponse response)
+//            throws ServletException, IOException, Exception {
+//        String orderId = request.getParameter("id");
 //        hoadon order = orderBO.getOrderById(orderId);
 //        request.setAttribute("order", order);
-        request.getRequestDispatcher("order-details.jsp").forward(request, response);
-    }
+//        request.getRequestDispatcher("order-details.jsp").forward(request, response);
+//    }
 
-//    private String uploadImage(HttpServletRequest request) throws ServletException, IOException {
-//        Part filePart = request.getPart("image");
-//
-//        // If no image was uploaded, return null
-//        if (filePart == null || filePart.getSize() == 0) {
-//            return null;
-//        }
-//
-//        String uploadPath = request.getServletContext().getRealPath("") +  File.separator + "image_sach";
-//
-//        // Create the directory if it doesn't exist
-//        File uploadDir = new File(uploadPath);
-//        if (!uploadDir.exists()) {
-//            uploadDir.mkdir();
-//        }
-//
-//        // Generate a unique filename
-//        String originalFileName = getFileName(filePart);
-//        String fileExtension = originalFileName.substring(originalFileName.lastIndexOf("."));
-//        String uniqueFileName = UUID.randomUUID().toString() + fileExtension;
-//
-//        // Full path for saving the file
-//        String filePath = uploadPath + File.separator + uniqueFileName;
-//
-//        // Write the file
-//        filePart.write(filePath);
-//
-//        return uniqueFileName;
+//    private void viewOrderDetails(HttpServletRequest request, HttpServletResponse response)
+//            throws ServletException, IOException, Exception {
+////        String orderId = request.getParameter("id");
+////        hoadon order = orderBO.getOrderById(orderId);
+//        lichsubo lsbo = new lichsubo();
+//        ArrayList<lichsu> order = lsbo.getAllDonHang();
+//        request.setAttribute("order", order);
+//        request.getRequestDispatcher("order-details.jsp").forward(request, response);
 //    }
-//
-//    private String getFileName(Part part) {
-//        for (String content : part.getHeader("content-disposition").split(";")) {
-//            if (content.trim().startsWith("filename")) {
-//                return content.substring(content.indexOf('=') + 1).trim().replace("\"", "");
-//            }
-//        }
-//        return null;
-//    }
+
+private void viewOrderDetails(HttpServletRequest request, HttpServletResponse response)
+        throws ServletException, IOException, Exception {
+    ArrayList<lichsu> orders = new lichsubo().getAllDonHang();
+    request.setAttribute("orders", orders);
+    request.getRequestDispatcher("admin.jsp").forward(request, response);
+}
+
+
 
     private String uploadImage(HttpServletRequest request) throws ServletException, IOException {
+        // Tạo đường dẫn đến thư mục lưu ảnh
+        String uploadDir = "image_sach"; // Thư mục con trong project
+        String uploadPath = request.getServletContext().getRealPath("") + File.separator + uploadDir;
+
+        // Tạo thư mục nếu chưa tồn tại
+        File directory = new File(uploadPath);
+        if (!directory.exists() && !directory.mkdirs()) {
+            throw new IOException("Không thể tạo thư mục lưu trữ ảnh.");
+        }
+
+        // Lấy phần ảnh từ form
         Part filePart = request.getPart("image");
 
-        // Kiểm tra xem có tệp được tải lên không
+        // Kiểm tra xem có tệp nào được tải lên không
         if (filePart == null || filePart.getSize() == 0) {
             return null; // Không có tệp nào được tải lên
         }
 
         // Kiểm tra loại tệp hợp lệ
         String originalFileName = getFileName(filePart);
-        if (originalFileName == null || !(originalFileName.endsWith(".jpg") || originalFileName.endsWith(".jpeg") || originalFileName.endsWith(".png"))) {
+        if (originalFileName == null ||
+                !(originalFileName.toLowerCase().endsWith(".jpg") ||
+                        originalFileName.toLowerCase().endsWith(".jpeg") ||
+                        originalFileName.toLowerCase().endsWith(".png"))) {
             throw new ServletException("Chỉ chấp nhận các tệp ảnh có định dạng JPG, JPEG, hoặc PNG.");
-        }
-
-        // Tạo đường dẫn đến thư mục lưu ảnh
-        String uploadPath = request.getServletContext().getRealPath("") + File.separator + "image_sach";
-
-        // Tạo thư mục nếu chưa tồn tại
-        File uploadDir = new File(uploadPath);
-        if (!uploadDir.exists() && !uploadDir.mkdir()) {
-            throw new IOException("Không thể tạo thư mục lưu trữ ảnh.");
         }
 
         // Sinh tên tệp duy nhất để tránh trùng lặp
         String fileExtension = originalFileName.substring(originalFileName.lastIndexOf("."));
-        String uniqueFileName = UUID.randomUUID().toString() + fileExtension;
+        String uniqueFileName = UUID.randomUUID().toString().substring(0, 4) + fileExtension;
 
-        // Full path để lưu file
+        // Tạo đường dẫn đầy đủ cho file
         String filePath = uploadPath + File.separator + uniqueFileName;
 
         // Ghi file lên server
-        try {
-            filePart.write(filePath);
+        try (InputStream inputStream = filePart.getInputStream()) {
+            Files.copy(inputStream, Paths.get(filePath), StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
             throw new IOException("Lỗi trong quá trình ghi file: " + e.getMessage(), e);
         }
 
-        // Trả về tên file duy nhất để lưu trong DB
-        return uniqueFileName;
+        return uploadDir + "/" + uniqueFileName;
     }
 
     private String getFileName(Part part) {

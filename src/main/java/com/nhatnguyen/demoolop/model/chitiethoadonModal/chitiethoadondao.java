@@ -9,7 +9,7 @@ import java.sql.PreparedStatement;
 
 
 public class chitiethoadondao {
-	public int themChiTietHoaDon(String MaSach, long SoLuongMua, String MaHoaDon) throws Exception{
+	public int themChiTietHoaDon(String MaSach, long SoLuongMua, long MaHoaDon) throws Exception{
 		Connection conn = dbHelper.getConnection();
 		String sql = "insert into ChiTietHoaDon(MaSach, SoLuongMua, MaHoaDon)\r\n"
 				+ "values (?,?,?)";
