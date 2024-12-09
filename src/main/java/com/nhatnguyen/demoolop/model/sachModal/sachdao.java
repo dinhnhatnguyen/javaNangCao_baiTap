@@ -189,6 +189,45 @@ public class sachdao {
         return tong;
     }
 
+    public boolean checkQuantityAvailable(String masach, long quantity) throws Exception {
+        Connection conn = null;
+        PreparedStatement cmd = null;
+        ResultSet rs = null;
+        try {
+            conn = dbHelper.getConnection();
+            String sql = "SELECT soluong FROM sach WHERE masach = ?";
+            cmd = conn.prepareStatement(sql);
+            cmd.setString(1, masach);
+            rs = cmd.executeQuery();
+            if (rs.next()) {
+                return rs.getLong("soluong") >= quantity;
+            }
+            return false;
+        } finally {
+            if (rs != null) rs.close();
+            if (cmd != null) cmd.close();
+            if (conn != null) conn.close();
+        }
+    }
+
+    public boolean updateQuantity(String masach, long quantity) throws Exception {
+        Connection conn = null;
+        PreparedStatement cmd = null;
+        try {
+            conn = dbHelper.getConnection();
+            String sql = "UPDATE sach SET soluong = soluong - ? WHERE masach = ? AND soluong >= ?";
+            cmd = conn.prepareStatement(sql);
+            cmd.setLong(1, quantity);
+            cmd.setString(2, masach);
+            cmd.setLong(3, quantity);
+
+            return cmd.executeUpdate() > 0;
+        } finally {
+            if (cmd != null) cmd.close();
+            if (conn != null) conn.close();
+        }
+    }
+
 
 
 }

@@ -10,15 +10,21 @@ import java.util.Date;
 
 public class hoadonbo {
     hoadondao hddao = new hoadondao();
+    ArrayList<hoadon> ds;
 
-    public int themHoaDon(long makh, Date NgayMua, boolean damua) throws Exception {
+    public long themHoaDon(long makh, Date NgayMua, boolean damua) throws Exception {
         return hddao.themHoaDon(makh, NgayMua, damua);
+    }
+    public ArrayList<hoadon> getListHoaDon() throws Exception {
+        return hddao.getListHoaDon();
     }
 
     public long getMaxHoaDon() throws Exception {
         return hddao.getMaxHoaDon();
     }
-
+    public hoadon getHoaDon(Long mahoadon) throws Exception {
+        return hddao.getHoaDon(mahoadon);
+    }
     public ArrayList<hoadon> getHoaDon() throws Exception {
         ArrayList<hoadon> dsHoaDon = new ArrayList<>();
         Connection cn = dbHelper.getConnection();
@@ -31,7 +37,7 @@ public class hoadonbo {
             hd.setMahoadon(rs.getLong("mahoadon"));
             hd.setMakh(rs.getLong("makh"));
             hd.setNgaymua(rs.getDate("NgayMua"));
-            hd.setDamua(rs.getBoolean("damua"));
+            hd.setTrangthai(rs.getBoolean("damua"));
             dsHoaDon.add(hd);
         }
 
@@ -54,13 +60,25 @@ public class hoadonbo {
             hd.setMahoadon(rs.getLong("mahoadon"));
             hd.setMakh(rs.getLong("makh"));
             hd.setNgaymua(rs.getDate("NgayMua"));
-            hd.setDamua(rs.getBoolean("damua"));
+            hd.setTrangthai(rs.getBoolean("damua"));
         }
 
         rs.close();
         cmd.close();
         cn.close();
         return hd;
+    }
+    public ArrayList<hoadon> Tim(String key) throws Exception {
+        ArrayList<hoadon> tam = new ArrayList<hoadon>();
+        ds = getListHoaDon();
+        for (hoadon hd : ds) {
+            if (hd.getHotenkhach().toLowerCase().trim().contains(key.toLowerCase().trim())
+                    || hd.getMahoadon().toString().toLowerCase().trim().contains(key.toLowerCase().trim()))
+            {
+                tam.add(hd);
+            }
+        }
+        return tam;
     }
 
     //	public void toggleOrderStatus(long orderId) throws Exception {
@@ -94,5 +112,9 @@ public class hoadonbo {
         rs.close();
         selectCmd.close();
         cn.close();
+    }
+
+    public int updateTrangThai(Long mahoadon) throws Exception {
+        return hddao.updateTrangThai(mahoadon);
     }
 }

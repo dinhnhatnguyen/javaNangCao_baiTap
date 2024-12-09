@@ -13,6 +13,13 @@ public class sachbo {
 	sachdao sdao = new sachdao();
 	ArrayList<sach> ds;
 
+	public boolean checkQuantityAvailable(String masach, long quantity) throws Exception {
+		return sdao.checkQuantityAvailable(masach, quantity);
+	}
+
+	public boolean updateQuantity(String masach, long quantity) throws Exception {
+		return sdao.updateQuantity(masach, quantity);
+	}
 	public ArrayList<sach> getsach() throws Exception {
 		ds = sdao.getsach();
 		return ds;

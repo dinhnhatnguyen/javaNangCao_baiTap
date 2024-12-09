@@ -237,7 +237,7 @@
 <%--</nav>--%>
 <nav class="navbar navbar-expand-lg navbar-dark navbar-custom sticky-top">
     <div class="container">
-        <a class="navbar-brand" href="#"><i class="fas fa-book"></i> Nhà Sách Online</a>
+        <a class="navbar-brand" href="sachController"><i class="fas fa-book"></i> Nhà Sách Online</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
         </button>

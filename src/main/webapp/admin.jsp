@@ -306,6 +306,12 @@
                                             ${order.damua ? 'Hủy xử lý' : 'Xác nhận'}
                                     </a>
                                 </td>
+                                <td class="actions">
+                                    <a href="adminController?action=Details&mahoadon=${order.mahoadon}"
+                                       class="btn 'btn-success'} btn-sm">
+                                            Chi tiết
+                                    </a>
+                                </td>
 
                             </tr>
                         </c:forEach>

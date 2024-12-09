@@ -2,6 +2,8 @@ package com.nhatnguyen.demoolop.Controller;
 
 
 import com.nhatnguyen.demoolop.model.Helper.dbHelper;
+import com.nhatnguyen.demoolop.model.chitiethoadonModal.chitiethoadon;
+import com.nhatnguyen.demoolop.model.chitiethoadonModal.chitiethoadonbo;
 import com.nhatnguyen.demoolop.model.hoadonModal.hoadon;
 import com.nhatnguyen.demoolop.model.hoadonModal.hoadonbo;
 import com.nhatnguyen.demoolop.model.lichsuModal.lichsu;
@@ -84,12 +86,35 @@ public class adminController extends HttpServlet {
                 case "searchOrders":
                     searchOrders(request, response);
                     break;
+
+                case "Details":
+                    chiTietHoaDon(request, response);
+                    break;
+
                 default:
                     showBookManagement(request, response);
             }
         } catch (Exception e) {
             throw new ServletException("Error processing request", e);
         }
+    }
+
+    private void chiTietHoaDon(HttpServletRequest request, HttpServletResponse response)
+            throws Exception {
+        String mahoadonStr = request.getParameter("mahoadon");
+        hoadonbo hdbo = new hoadonbo();
+        chitiethoadonbo ctbo = new chitiethoadonbo();
+        Long mahoadon = Long.parseLong(mahoadonStr);
+        boolean trangthai = hdbo.getHoaDon(mahoadon).isTrangthai();
+
+
+        ArrayList<chitiethoadon> ds = null;
+        if(mahoadon != null && mahoadon > 0) {
+            ds = ctbo.getListChiTietTheoMaHD(mahoadon);
+        }
+        request.setAttribute("dsct", ds);
+        request.setAttribute("trangthai", trangthai);
+        request.getRequestDispatcher("editTrangThaiHD.jsp").forward(request, response);
     }
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -150,7 +175,7 @@ public class adminController extends HttpServlet {
                 try {
                     long customerId = Long.parseLong(searchKey);
                     for (hoadon order : allOrders) {
-                        if (order.getMakh() == customerId) {
+                        if (order.getMakhachhang() == customerId) {
                             searchResults.add(order);
                         }
                     }
