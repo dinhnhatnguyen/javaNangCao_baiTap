@@ -221,11 +221,7 @@
                     <table class="table table-bordered">
                         <thead class="thead-light">
                         <tr>
-                            <%--                            <th>Mã Đơn</th>--%>
-                            <%--                            <th>Mã Khách Hàng</th>--%>
-                            <%--                            <th>Ngày Mua</th>--%>
-                            <%--                            <th>Trạng Thái</th>--%>
-                            <%--                            <th>Thao Tác</th>--%>
+
                             <th>Họ tên người</th>
                             <th>Tên sách</th>
                             <th>Số lượng mua</th>
@@ -238,57 +234,9 @@
 
                         </tr>
                         </thead>
-<%--                        <tbody>--%>
-<%--                        <c:forEach var="order" items="${order}">--%>
-<%--                            <tr>--%>
-<%--                                    &lt;%&ndash;                                <td>${order.mahoadon}</td>&ndash;%&gt;--%>
-<%--                                    &lt;%&ndash;                                <td>${order.makh}</td>&ndash;%&gt;--%>
-<%--                                    &lt;%&ndash;                                <td>${order.ngaymua}</td>&ndash;%&gt;--%>
-<%--                                    &lt;%&ndash;                                <td class="${order.damua ? 'status-completed' : 'status-pending'}">&ndash;%&gt;--%>
-<%--                                    &lt;%&ndash;                                        ${order.damua ? 'Đã xử lý' : 'Chờ xử lý'}&ndash;%&gt;--%>
-<%--                                    &lt;%&ndash;                                </td>&ndash;%&gt;--%>
-<%--                                    &lt;%&ndash;                                <td class="actions">&ndash;%&gt;--%>
-<%--                                    &lt;%&ndash;                                    <a href="adminController?action=toggleOrderStatus&id=${order.mahoadon}"&ndash;%&gt;--%>
-<%--                                    &lt;%&ndash;                                       class="btn ${order.damua ? 'btn-danger' : 'btn-success'} btn-sm">&ndash;%&gt;--%>
-<%--                                    &lt;%&ndash;                                            ${order.damua ? 'Hủy xử lý' : 'Xác nhận'}&ndash;%&gt;--%>
-<%--                                    &lt;%&ndash;                                    </a>&ndash;%&gt;--%>
-<%--                                    &lt;%&ndash;                                </td>&ndash;%&gt;--%>
-<%--                                <td>${order.getHoten()}--%>
-<%--                                </td>--%>
-<%--                                <td>${order.getTensach()} %>--%>
-<%--                                </td>--%>
-<%--                                <td>${order.getSoLuongMua()} %>--%>
-<%--                                </td>--%>
-<%--                                <td>${order.getGia()} %>--%>
-<%--                                </td>--%>
-<%--                                <td>${order.getThanhTien()} %>--%>
-<%--                                </td>--%>
-<%--                                <td>${order.isDamua()} %>--%>
-<%--                                </td>--%>
-<%--                                <td>${order.getNgayMua()} %>--%>
-<%--                                </td>--%>
-<%--                            </tr>--%>
-<%--                        </c:forEach>--%>
+
 
                         <tbody>
-<%--                        <c:forEach var="order" items="${orders}">--%>
-<%--                            <tr>--%>
-<%--                                <td>${order.hoten}</td>--%>
-<%--                                <td>${order.tensach}</td>--%>
-<%--                                <td>${order.soLuongMua}</td>--%>
-<%--                                <td>${order.gia}</td>--%>
-<%--                                <td>${order.thanhTien}</td>--%>
-<%--                                <td>${order.damua ? 'Đã mua' : 'Chưa mua'}</td>--%>
-<%--                                <td>${order.ngayMua}</td>--%>
-<%--&lt;%&ndash;                        --%>
-<%--&lt;%&ndash;                                <td class="actions">&ndash;%&gt;--%>
-<%--&lt;%&ndash;                                    <a href="adminController?action=toggleOrderStatus&id=${order.mahoadon}"&ndash;%&gt;--%>
-<%--&lt;%&ndash;                                       class="btn ${order.damua ? 'btn-danger' : 'btn-success'} btn-sm">&ndash;%&gt;--%>
-<%--&lt;%&ndash;                                            ${order.damua ? 'Hủy xử lý' : 'Xác nhận'}&ndash;%&gt;--%>
-<%--&lt;%&ndash;                                    </a>&ndash;%&gt;--%>
-<%--&lt;%&ndash;                                </td>&ndash;%&gt;--%>
-<%--                            </tr>--%>
-<%--                        </c:forEach>--%>
 
                         <tbody>
                         <c:forEach var="order" items="${orders}">
@@ -308,7 +256,7 @@
                                 </td>
                                 <td class="actions">
                                     <a href="adminController?action=Details&mahoadon=${order.mahoadon}"
-                                       class="btn 'btn-success'} btn-sm">
+                                       class="btn btn-success btn-sm">
                                             Chi tiết
                                     </a>
                                 </td>
